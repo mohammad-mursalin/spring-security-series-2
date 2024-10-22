@@ -28,4 +28,8 @@ public class HomeController {
         service.register(user);
         return "user registration successfull";
     }
+    @PostMapping("/login")
+    public String login(@RequestBody Users user) {
+        return service.verify(user);
+    }
 }
