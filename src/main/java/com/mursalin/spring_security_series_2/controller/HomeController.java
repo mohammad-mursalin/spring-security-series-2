@@ -32,4 +32,9 @@ public class HomeController {
     public String login(@RequestBody Users user) {
         return service.verify(user);
     }
+
+    @GetMapping("/test")
+    public String testPage() {
+        return "Inside test page";
+    }
 }
