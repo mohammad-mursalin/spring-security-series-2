@@ -1,6 +1,5 @@
 package com.mursalin.spring_security_series_2.service;
 
-import com.mursalin.spring_security_series_2.model.Users;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Date;
@@ -20,29 +18,38 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    public String getToken(Users user) {
+
+    private String sk = " ";
+
+    public JwtService() {
+        try {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA256");
+            SecretKey secretKey = keyGenerator.generateKey();
+            sk = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getToken(String username) {
+
         Map<String, Object> claim = new HashMap<>();
+
         return Jwts.builder()
                 .claims()
                 .add(claim)
-                .subject(user.getUsername())
+                .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+60*60*30))
+                .expiration(new Date(System.currentTimeMillis()+60*60*100))
                 .and()
                 .signWith(getKey())
                 .compact();
     }
 
     private SecretKey getKey() {
-        try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey secretKey = keyGenerator.generateKey();
-            String sk = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-            byte[] keyByte = Decoders.BASE64.decode(sk);
-            return Keys.hmacShaKeyFor(keyByte);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+        byte[] keyByte = Decoders.BASE64.decode(sk);
+        return Keys.hmacShaKeyFor(keyByte);
     }
 
     public String extractUsername(String token) {

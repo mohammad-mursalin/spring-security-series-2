@@ -40,11 +40,11 @@ public class UserService {
     }
 
     public String verify(Users user) {
-        System.out.println("userservice " +user.getUsername());
+
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 
         if(authentication.isAuthenticated()) {
-            return jwtService.getToken(user);
+            return jwtService.getToken(user.getUsername());
         }
         return "user not found";
     }
